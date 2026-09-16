@@ -13,8 +13,8 @@ convenience fee, and GST — with a full line-by-line bill breakup.
 
 | | |
 |---|---|
-| **Customer / booking counter** | `https://<your-codespace-url>-8000.app.github.dev/` |
-| **Admin portal** | `https://<your-codespace-url>-8000.app.github.dev/admin` |
+| **Customer / booking counter** | `https://solid-meme-g47x45jpjpg7cvp9-8000.app.github.dev/` |
+| **Admin portal** | `https://solid-meme-g47x45jpjpg7cvp9-8000.app.github.dev/` |
 | **Admin login** | username `1234` · password `1234` (demo credentials — intentionally simple; see REASONING.md) |
 | **API docs (Swagger)** | `https://<your-codespace-url>-8000.app.github.dev/docs` |
 
