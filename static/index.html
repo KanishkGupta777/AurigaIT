@@ -209,6 +209,22 @@
   .toggle-row .label { font-size: 13.5px; font-weight: 500; }
   .toggle-row .desc { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
 
+  .text-input {
+    width: 100%;
+    background: var(--panel-raised);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 13.5px;
+    padding: 9px 11px;
+  }
+  .text-input:focus {
+    outline: none;
+    border-color: var(--gold-dim);
+  }
+  .text-input::placeholder { color: var(--muted); }
+
   .switch {
     position: relative;
     width: 40px;
@@ -378,7 +394,10 @@
     <h1>BOX OFFICE</h1>
     <div class="sub">Multiplex ticket pricing engine — tiers, offers, fees and GST, itemised to the paisa.</div>
   </div>
-  <div class="badge" id="api-status">connecting…</div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <a href="/admin" style="font-size:12px; color: var(--muted); text-decoration: none; border-bottom: 1px dashed var(--line);">Admin login →</a>
+    <div class="badge" id="api-status">connecting…</div>
+  </div>
 </div>
 
 <div class="layout">
@@ -388,6 +407,14 @@
 
     <span class="field-label">Seats</span>
     <div class="tiers" id="tiers"></div>
+
+    <span class="field-label">Your details</span>
+    <div class="toggles" style="margin-bottom: 22px;">
+      <div class="toggle-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+        <input class="text-input" id="customer-name" type="text" placeholder="Full name" autocomplete="name" />
+        <input class="text-input" id="customer-phone" type="tel" placeholder="Phone number" autocomplete="tel" />
+      </div>
+    </div>
 
     <span class="field-label">Offers</span>
     <div class="toggles">
@@ -612,6 +639,17 @@ function renderReceipt(bill) {
 
 async function bookNow() {
   if (!anySelected()) { setStatus("Select at least one seat first.", "error"); return; }
+  const nameEl = document.getElementById("customer-name");
+  const phoneEl = document.getElementById("customer-phone");
+  const name = nameEl.value.trim();
+  const phone = phoneEl.value.trim();
+  if (!name) { setStatus("Enter your name to book.", "error"); nameEl.focus(); return; }
+  if (!phone || phone.replace(/[^0-9]/g, "").length < 10) {
+    setStatus("Enter a valid phone number (at least 10 digits).", "error");
+    phoneEl.focus();
+    return;
+  }
+
   const ticketPayload = {};
   Object.entries(qty).forEach(([k, v]) => { if (v > 0) ticketPayload[k] = v; });
 
@@ -624,6 +662,8 @@ async function bookNow() {
         tickets: ticketPayload,
         is_member: memberToggle.checked,
         apply_festival_discount: festivalToggle.checked,
+        customer_name: name,
+        phone: phone,
       }),
     });
     const data = await res.json();
@@ -632,6 +672,8 @@ async function bookNow() {
       return;
     }
     setStatus(`Booked — total ${money(data.grand_total)}. Seats reserved.`, "success");
+    nameEl.value = "";
+    phoneEl.value = "";
     await loadShows();
     selectShow(activeShowId);
   } catch (e) {

@@ -90,6 +90,34 @@ tier rejection, and — the one I consider most important — that the sum of
 every line's numbers reconstructs the grand total exactly, with no paisa
 left over anywhere.
 
+## Admin portal, customer capture, and persistence
+
+Added after the core engine was working: booking now requires a customer
+name and phone number (validated server-side — non-empty name, ≥10 digit
+phone), and every completed booking is persisted to a real SQLite
+database (`pricing/db.py`), not an in-memory list, so it survives server
+restarts within the same environment.
+
+The admin portal (`/admin`) is a separate static page with its own login
+(`/admin/login`), using a short-lived server-side session token
+(`pricing/auth.py`) rather than trusting the browser — the frontend never
+sees or checks credentials itself, it just gets a token back and sends it
+on `X-Admin-Token` for `/admin/bookings` and `/admin/summary`. Every admin
+data endpoint checks that token server-side before returning anything, so
+booking data can't be read by guessing a URL.
+
+The demo credentials are intentionally both "1234" per the requirement —
+this is clearly demo-grade auth (plaintext comparison, in-memory sessions,
+no password hashing) appropriate for an assessment project, not something
+I'd ship in a real system. That trade-off is deliberate and documented
+here rather than hidden.
+
+The admin dashboard adds a few things beyond "list of bookings" because
+they're what an actual box-office manager would want: total revenue and
+seats-sold summary cards, a per-show breakdown, search by customer
+name/phone, and a CSV export (built client-side from already-authenticated
+data, so no token ever appears in a URL).
+
 ## What I'd add with more time
 
 - Persistent storage (currently in-memory, resets on restart).

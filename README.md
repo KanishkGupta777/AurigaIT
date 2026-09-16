@@ -80,6 +80,20 @@ capping, member-discount capping, sold-out/unknown-tier rejection, custom
 pricing configs, and — most importantly — that every line item always sums
 exactly to the grand total (no paisa drift).
 
+## Admin portal
+
+Visit `http://localhost:8000/admin`. Login: username `1234`, password
+`1234` (demo credentials — see REASONING.md for why these are intentionally
+simple). Shows total revenue, seats sold, a per-show breakdown, a
+searchable table of every booking (with customer name/phone), and a CSV
+export button.
+
+Bookings are stored in a local SQLite file at `data/bookings.db`, created
+automatically on first run. It's gitignored by default since it's live
+transactional data, not source code — see the note at the top of
+`pricing/db.py` if you want to understand why "a database in GitHub" isn't
+quite the right framing for a live store.
+
 ## Debugging notes
 
 - All money is handled as **integer paisa** internally (see `pricing/money.py`).
