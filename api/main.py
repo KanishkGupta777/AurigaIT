@@ -1,6 +1,9 @@
+import os
 from typing import Dict, Optional
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from pricing.catalog import seed_demo_catalog, TierSoldOutError, TierNotFoundError
@@ -8,6 +11,10 @@ from pricing.engine import price_booking, PricingConfig
 
 app = FastAPI(title="Multiplex Ticket Pricing Engine")
 catalog = seed_demo_catalog()
+
+STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+if os.path.isdir(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
 @app.get("/shows")
@@ -92,4 +99,7 @@ def book(show_id: str, req: BookingRequest):
 
 @app.get("/")
 def root():
+    index_path = os.path.join(STATIC_DIR, "index.html")
+    if os.path.isfile(index_path):
+        return FileResponse(index_path)
     return {"status": "ok", "docs": "/docs"}
